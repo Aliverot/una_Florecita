@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Para ti</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Montserrat:wght@200;300&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      height: 100dvh;
+      overflow: hidden;
+      background-color: #030409;
+      background: radial-gradient(ellipse at 50% 42%, #141328 0%, #090a16 52%, #030408 100%);
+      font-family: 'Cormorant Garamond', 'Didot', 'Bodoni MT', 'Georgia', serif;
+      color: #f7f3f0;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+    }
+
+    #nightCanvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .scene-container {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .flower-stage {
+      position: relative;
+      width: min(80vw, 320px);
+      height: min(108vw, 420px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transform-origin: center bottom;
+      transition: filter 0.4s ease;
+    }
+
+    .flower-svg {
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+      filter: drop-shadow(0 0 18px rgba(255, 215, 230, 0.32));
+      transition: transform 0.5s cubic-bezier(0.2, 0.9, 0.3, 1), filter 0.5s ease;
+    }
+
+    .sway-wrapper {
+      transform-origin: 160px 395px;
+      animation: gentleSway 7.5s ease-in-out infinite;
+    }
+
+    @keyframes gentleSway {
+      0%, 100% {
+        transform: rotate(0deg) translateY(0);
+      }
+      35% {
+        transform: rotate(1.2deg) translateY(-2px);
+      }
+      70% {
+        transform: rotate(-1.3deg) translateY(-1px);
+      }
+    }
+
+    .stem-path {
+      stroke-dasharray: 270;
+      stroke-dashoffset: 270;
+      animation: growStem 2.2s cubic-bezier(0.25, 1, 0.5, 1) forwards 0.25s;
+    }
+
+    .leaf-path {
+      stroke-dasharray: 140;
+      stroke-dashoffset: 140;
+      animation: growLeaf 1.8s cubic-bezier(0.25, 1, 0.5, 1) forwards 1.1s;
+    }
+
+    .leaf-fill {
+      opacity: 0;
+      animation: fadeInLeaf 1.5s ease-out forwards 1.5s;
+    }
+
+    .dewdrop-group {
+      opacity: 0;
+      animation: fadeIn 1.8s ease-out forwards 2.8s;
+    }
+
+    .petal {
+      transform-box: fill-box; transform-origin: center;
+      opacity: 0;
+      transform: scale(0.1) translateY(22px);
+      animation: bloomPetal 2.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .petal-layer-1 { animation-delay: 1.3s; }
+    .petal-layer-2 { animation-delay: 1.6s; }
+    .petal-layer-3 { animation-delay: 1.9s; }
+    .petal-layer-4 { animation-delay: 2.2s; }
+
+    .petal-vein {
+      opacity: 0;
+      animation: fadeIn 1.8s ease-out forwards 2.4s;
+    }
+
+    .core-glow {
+      transform-box: fill-box; transform-origin: center;
+      opacity: 0;
+      animation: glowHeart 2.5s ease-out forwards 2.4s, heartBreath 4.5s ease-in-out infinite 5s;
+    }
+
+    .stamen-line {
+      stroke-dasharray: 70;
+      stroke-dashoffset: 70;
+      animation: growStem 1.4s cubic-bezier(0.25, 1, 0.5, 1) forwards 2.1s;
+    }
+
+    .stamen-tip {
+      opacity: 0;
+      animation: fadeIn 1.2s ease-out forwards 2.6s;
+    }
+
+    @keyframes growStem {
+      to { stroke-dashoffset: 0; }
+    }
+
+    @keyframes growLeaf {
+      to { stroke-dashoffset: 0; }
+    }
+
+    @keyframes fadeInLeaf {
+      to { opacity: 0.9; }
+    }
+
+    @keyframes bloomPetal {
+      0% {
+        opacity: 0;
+        transform: scale(0.1) translateY(22px);
+      }
+      50% {
+        opacity: 0.75;
+      }
+      85% {
+        transform: scale(1.03) translateY(-1px);
+        opacity: 0.96;
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    @keyframes glowHeart {
+      0% { opacity: 0; transform: scale(0.2); }
+      100% { opacity: 0.88; transform: scale(1); }
+    }
+
+    @keyframes heartBreath {
+      0%, 100% {
+        opacity: 0.75;
+        transform: scale(0.96);
+      }
+      50% {
+        opacity: 1;
+        transform: scale(1.1);
+      }
+    }
+
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+
+    .flower-stage.pulse-active .flower-svg {
+      animation: touchPulse 0.85s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+    }
+
+    @keyframes touchPulse {
+      0% {
+        transform: scale(1);
+        filter: drop-shadow(0 0 18px rgba(255, 215, 230, 0.32));
+      }
+      30% {
+        transform: scale(1.08) translateY(-4px);
+        filter: drop-shadow(0 0 38px rgba(255, 235, 205, 0.98)) drop-shadow(0 0 75px rgba(255, 180, 215, 0.7));
+      }
+      65% {
+        transform: scale(0.98);
+        filter: drop-shadow(0 0 28px rgba(255, 225, 235, 0.55));
+      }
+      100% {
+        transform: scale(1);
+        filter: drop-shadow(0 0 18px rgba(255, 215, 230, 0.32));
+      }
+    }
+
+    .ambient-halo {
+      position: absolute;
+      width: min(92vw, 360px);
+      height: min(80vw, 310px);
+      border-radius: 50%;
+      background: radial-gradient(ellipse at 50% 50%, rgba(255, 215, 230, 0.22) 0%, rgba(255, 190, 220, 0.1) 45%, rgba(255, 255, 255, 0) 75%);
+      pointer-events: none;
+      top: 42%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      opacity: 0;
+      animation: haloFade 3s ease-out forwards 1.8s, haloPulse 6.5s ease-in-out infinite 5s;
+      filter: blur(14px);
+    }
+
+    @keyframes haloFade {
+      to { opacity: 1; }
+    }
+
+    @keyframes haloPulse {
+      0%, 100% {
+        transform: translate(-50%, -50%) scale(0.96);
+        opacity: 0.75;
+      }
+      50% {
+        transform: translate(-50%, -50%) scale(1.12);
+        opacity: 0.98;
+      }
+    }
+
+    .bouquet-ribbon {
+      opacity: 0;
+      animation: fadeIn 1.8s ease-out forwards 1.7s;
+      filter: drop-shadow(0 2px 6px rgba(220, 100, 140, 0.35));
+    }
+
+    .text-wrapper {
+      margin-top: 22px;
+      min-height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .poetic-text {
+      font-size: clamp(1.22rem, 4.2vw, 1.48rem);
+      font-weight: 300;
+      letter-spacing: 0.16em;
+      color: rgba(248, 243, 241, 0.92);
+      text-shadow: 0 0 15px rgba(255, 220, 235, 0.42), 0 0 32px rgba(255, 195, 215, 0.22);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      opacity: 0;
+      transform: translateY(12px);
+      filter: blur(6px);
+      animation: textAppear 2.2s cubic-bezier(0.2, 0.9, 0.3, 1) forwards 3.1s;
+      transition: opacity 0.38s cubic-bezier(0.2, 0.9, 0.3, 1), 
+                  transform 0.38s cubic-bezier(0.2, 0.9, 0.3, 1), 
+                  filter 0.38s ease, 
+                  color 0.4s ease, 
+                  text-shadow 0.4s ease;
+    }
+
+    .poetic-text.fade-switch {
+      opacity: 0;
+      transform: translateY(-8px) scale(0.96);
+      filter: blur(8px);
+    }
+
+    .poetic-text.glow-up {
+      color: #ffffff;
+      text-shadow: 0 0 22px rgba(255, 238, 242, 0.95), 0 0 45px rgba(255, 200, 225, 0.6);
+    }
+
+    .sparkle-icon {
+      font-size: 0.92em;
+      display: inline-block;
+      opacity: 0.88;
+      animation: sparkleGlint 3.6s ease-in-out infinite 3.5s;
+    }
+
+    @keyframes textAppear {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
+      }
+    }
+
+    @keyframes sparkleGlint {
+      0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.75; }
+      50% { transform: scale(1.22) rotate(10deg); opacity: 1; filter: drop-shadow(0 0 6px #fff5d6); }
+    }
+
+    .touch-hint {
+      position: absolute;
+      bottom: 22px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.65rem;
+      font-weight: 200;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: rgba(255, 255, 255, 0.22);
+      opacity: 0;
+      animation: fadeIn 2s ease forwards 4.4s;
+      pointer-events: none;
+      transition: opacity 1s ease;
+    }
+  </style>
+</head>
+<body>
+
+  <canvas id="nightCanvas"></canvas>
+
+  <main class="scene-container">
+
+    <div class="flower-stage" id="flowerStage" role="button" aria-label="Tocar la flor">
+      <div class="ambient-halo"></div>
+      <svg class="flower-svg" viewBox="0 0 320 420" xmlns="http://www.w3.org/2000/svg"><defs>
+          <linearGradient id="stemGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+            <stop offset="0%" stop-color="#12251f" stop-opacity="0.8"/>
+            <stop offset="35%" stop-color="#224d3e" stop-opacity="0.95"/>
+            <stop offset="75%" stop-color="#4d9478" stop-opacity="0.95"/>
+            <stop offset="100%" stop-color="#9be0c7" stop-opacity="1"/>
+          </linearGradient>
+
+          <linearGradient id="leafGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#17352a" stop-opacity="0.75"/>
+            <stop offset="55%" stop-color="#346d56" stop-opacity="0.88"/>
+            <stop offset="88%" stop-color="#69bca0" stop-opacity="0.92"/>
+            <stop offset="100%" stop-color="#b6f0dc" stop-opacity="0.98"/>
+          </linearGradient>
+
+          <radialGradient id="dewdropGrad" cx="35%" cy="30%" r="65%">
+            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95"/>
+            <stop offset="40%" stop-color="#d6f8ee" stop-opacity="0.7"/>
+            <stop offset="75%" stop-color="#3c7961" stop-opacity="0.5"/>
+            <stop offset="100%" stop-color="#183a30" stop-opacity="0.8"/>
+          </radialGradient>
+
+          <linearGradient id="backPetalGrad" x1="50%" y1="100%" x2="50%" y2="0%">
+            <stop offset="0%" stop-color="#442646" stop-opacity="0.88"/>
+            <stop offset="45%" stop-color="#9b5f88" stop-opacity="0.84"/>
+            <stop offset="85%" stop-color="#e8bfde" stop-opacity="0.92"/>
+            <stop offset="100%" stop-color="#fdf4fa" stop-opacity="0.98"/>
+          </linearGradient>
+
+          <linearGradient id="midPetalGrad" x1="50%" y1="100%" x2="50%" y2="0%">
+            <stop offset="0%" stop-color="#80385b" stop-opacity="0.88"/>
+            <stop offset="38%" stop-color="#cc749e" stop-opacity="0.86"/>
+            <stop offset="82%" stop-color="#f9cbdf" stop-opacity="0.93"/>
+            <stop offset="100%" stop-color="#ffffff" stop-opacity="1"/>
+          </linearGradient>
+
+          <linearGradient id="frontPetalGrad" x1="50%" y1="100%" x2="50%" y2="0%">
+            <stop offset="0%" stop-color="#a84d74" stop-opacity="0.92"/>
+            <stop offset="42%" stop-color="#ee94b9" stop-opacity="0.9"/>
+            <stop offset="85%" stop-color="#fedee9" stop-opacity="0.96"/>
+            <stop offset="100%" stop-color="#ffffff" stop-opacity="1"/>
+          </linearGradient>
+
+          <linearGradient id="veinGrad" x1="50%" y1="100%" x2="50%" y2="0%">
+            <stop offset="0%" stop-color="#ffb3cc" stop-opacity="0.1"/>
+            <stop offset="50%" stop-color="#ffeef4" stop-opacity="0.45"/>
+            <stop offset="100%" stop-color="#ffffff" stop-opacity="0.75"/>
+          </linearGradient>
+
+          <radialGradient id="heartCoreGrad" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#ffffff" stop-opacity="1"/>
+            <stop offset="25%" stop-color="#fff4cd" stop-opacity="0.95"/>
+            <stop offset="65%" stop-color="#ffb792" stop-opacity="0.55"/>
+            <stop offset="100%" stop-color="#ff7d9c" stop-opacity="0"/>
+          </radialGradient>
+
+          <linearGradient id="stamenGrad" x1="0%" y1="100%" x2="0%" y2="0%">
+            <stop offset="0%" stop-color="#ffce94" stop-opacity="0.4"/>
+            <stop offset="100%" stop-color="#fff5d9" stop-opacity="1"/>
+          </linearGradient>
+
+          <filter id="softGlow" x="-30%" y="-30%" width="160%" height="160%">
+            <feGaussianBlur stdDeviation="3.5" result="blur"/>
+            <feMerge>
+              <feMergeNode in="blur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+        <linearGradient id="a0" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#f6a9c4"/><stop offset="1" stop-color="#fff3f8"/></linearGradient><linearGradient id="a1" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#f2849f"/><stop offset="1" stop-color="#ffd3e2"/></linearGradient><linearGradient id="b0" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#ffc9a0"/><stop offset="1" stop-color="#fff7ec"/></linearGradient><linearGradient id="b1" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#ffae80"/><stop offset="1" stop-color="#ffe2c9"/></linearGradient><linearGradient id="c0" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#c7b0ee"/><stop offset="1" stop-color="#f8f3ff"/></linearGradient><linearGradient id="c1" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#ac90e2"/><stop offset="1" stop-color="#e5d9fa"/></linearGradient><linearGradient id="budG" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#f2849f"/><stop offset="1" stop-color="#ffd3e2"/></linearGradient>
+        <linearGradient id="ribbonGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#fff5f8"/>
+          <stop offset="35%" stop-color="#f8b8cc"/>
+          <stop offset="75%" stop-color="#d97598"/>
+          <stop offset="100%" stop-color="#994668"/>
+        </linearGradient>
+        <linearGradient id="heartCharmGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#ffffff"/>
+          <stop offset="30%" stop-color="#ffb3c7"/>
+          <stop offset="100%" stop-color="#e85b84"/>
+        </linearGradient>
+        <g id="pet"><path d="M0,0 C-24,-10 -26,-48 -4,-56 C-2,-53 2,-53 4,-56 C26,-48 24,-10 0,0Z" stroke="rgba(255,255,255,.6)" stroke-width=".7"/><path d="M0,-6 C-1,-24 -1,-38 0,-47" stroke="rgba(255,255,255,.5)" stroke-width=".8" fill="none" stroke-linecap="round"/></g><path id="lf" d="M0,0 C16,-10 32,-34 26,-64 C8,-48 -4,-24 0,0Z" fill="url(#leafGrad)" stroke="rgba(205,250,232,.55)" stroke-width=".8"/></defs><g class="sway-wrapper"><path class="stem-path" style="stroke-dasharray:400;stroke-dashoffset:400" d="M 157,395 C 125,300 70,215 62,152" fill="none" stroke="url(#stemGrad)" stroke-width="2" stroke-linecap="round"/><path class="stem-path" style="stroke-dasharray:400;stroke-dashoffset:400" d="M 158,395 C 140,340 100,290 92,225" fill="none" stroke="url(#stemGrad)" stroke-width="2.6" stroke-linecap="round"/><path class="stem-path" style="stroke-dasharray:400;stroke-dashoffset:400" d="M 162,395 C 185,340 225,285 228,215" fill="none" stroke="url(#stemGrad)" stroke-width="2.6" stroke-linecap="round"/><path class="stem-path" style="stroke-dasharray:400;stroke-dashoffset:400" d="M 160,395 C 157,330 165,260 160,150" fill="none" stroke="url(#stemGrad)" stroke-width="3" stroke-linecap="round"/><g class="leaf-fill"><use href="#lf" transform="translate(158 352) rotate(-70) scale(1.3)"/><use href="#lf" transform="translate(163 312) rotate(62) scale(1.1)"/><use href="#lf" transform="translate(137 346) rotate(-60) scale(0.9)"/><use href="#lf" transform="translate(186 345) rotate(72) scale(0.9)"/><use href="#lf" transform="translate(118 285) rotate(-55) scale(0.7)"/></g><g class="dewdrop-group"><ellipse cx="98" cy="290" rx="4" ry="3" fill="url(#dewdropGrad)"/><circle cx="97" cy="289" r="1.2" fill="#fff"/></g>
+        <g class="bouquet-ribbon">
+          <path d="M 150,361 C 157,359 164,359 171,361 C 172,365 171,368 170,370 C 163,368 156,368 149,370 Z" 
+                fill="url(#ribbonGrad)" stroke="rgba(255,255,255,0.65)" stroke-width="0.7"/>
+          <path d="M 157,368 C 152,378 148,388 145,398 C 147,395 152,385 156,371" 
+                fill="none" stroke="url(#ribbonGrad)" stroke-width="1.8" stroke-linecap="round"/>
+          <path d="M 163,368 C 168,378 172,388 175,398 C 173,395 168,385 164,371" 
+                fill="none" stroke="url(#ribbonGrad)" stroke-width="1.8" stroke-linecap="round"/>
+          <path d="M 160,365 C 146,357 138,365 142,372 C 146,376 156,371 160,367 Z" 
+                fill="url(#ribbonGrad)" stroke="rgba(255,255,255,0.7)" stroke-width="0.75"/>
+          <path d="M 160,365 C 174,357 182,365 178,372 C 174,376 164,371 160,367 Z" 
+                fill="url(#ribbonGrad)" stroke="rgba(255,255,255,0.7)" stroke-width="0.75"/>
+          <path d="M 160,370.2 C 158.8,368.9 155.5,366.5 155.5,364.5 C 155.5,362.8 156.8,361.8 158.4,361.8 C 159.2,361.8 159.7,362.2 160,362.5 C 160.3,362.2 160.8,361.8 161.6,361.8 C 163.2,361.8 164.5,362.8 164.5,364.5 C 164.5,366.5 161.2,368.9 160,370.2 Z" 
+                fill="url(#heartCharmGrad)" stroke="rgba(255,255,255,0.9)" stroke-width="0.6"/>
+          <circle cx="158" cy="363.8" r="0.75" fill="#ffffff" opacity="0.95"/>
+        </g><g transform="translate(62 154) rotate(-14)"><g class="petal petal-layer-3"><path d="M0,0 C-11,-6 -13,-26 0,-37 C13,-26 11,-6 0,0Z" fill="url(#budG)" stroke="rgba(255,255,255,.6)" stroke-width=".7"/><path d="M-9,1 C-12,-8 -6,-15 0,-15 C6,-15 12,-8 9,1Z" fill="#69bca0"/></g></g><g transform="translate(92 225) scale(0.8)"><g class="petal petal-layer-1" style="animation-delay:1.9s"><use href="#pet" fill="url(#b0)" transform="rotate(0.0) scale(1)"/><use href="#pet" fill="url(#b0)" transform="rotate(51.4) scale(1)"/><use href="#pet" fill="url(#b0)" transform="rotate(102.9) scale(1)"/><use href="#pet" fill="url(#b0)" transform="rotate(154.3) scale(1)"/><use href="#pet" fill="url(#b0)" transform="rotate(205.7) scale(1)"/><use href="#pet" fill="url(#b0)" transform="rotate(257.1) scale(1)"/><use href="#pet" fill="url(#b0)" transform="rotate(308.6) scale(1)"/></g><g class="petal petal-layer-2" style="animation-delay:2.3s"><use href="#pet" fill="url(#b1)" transform="rotate(25.7) scale(0.68)"/><use href="#pet" fill="url(#b1)" transform="rotate(97.7) scale(0.68)"/><use href="#pet" fill="url(#b1)" transform="rotate(169.7) scale(0.68)"/><use href="#pet" fill="url(#b1)" transform="rotate(241.7) scale(0.68)"/><use href="#pet" fill="url(#b1)" transform="rotate(313.7) scale(0.68)"/></g><g class="petal petal-layer-3" style="animation-delay:2.7s"><use href="#pet" fill="url(#b1)" transform="rotate(10.0) scale(0.4)"/><use href="#pet" fill="url(#b1)" transform="rotate(82.0) scale(0.4)"/><use href="#pet" fill="url(#b1)" transform="rotate(154.0) scale(0.4)"/><use href="#pet" fill="url(#b1)" transform="rotate(226.0) scale(0.4)"/><use href="#pet" fill="url(#b1)" transform="rotate(298.0) scale(0.4)"/></g><circle class="core-glow" r="26" fill="url(#heartCoreGrad)" opacity=".55"/><g class="petal petal-layer-4" style="animation-delay:2.9s"><circle r="8" fill="#ffe08a"/><circle cx="11.0" cy="0.0" r="1.5" fill="#fff"/><circle cx="5.5" cy="9.5" r="1.5" fill="#fff"/><circle cx="-5.5" cy="9.5" r="1.5" fill="#fff"/><circle cx="-11.0" cy="-0.0" r="1.5" fill="#fff"/><circle cx="-5.5" cy="-9.5" r="1.5" fill="#fff"/><circle cx="5.5" cy="-9.5" r="1.5" fill="#fff"/></g></g><g transform="translate(228 215) scale(0.85)"><g class="petal petal-layer-1" style="animation-delay:2.2s"><use href="#pet" fill="url(#c0)" transform="rotate(0.0) scale(1)"/><use href="#pet" fill="url(#c0)" transform="rotate(51.4) scale(1)"/><use href="#pet" fill="url(#c0)" transform="rotate(102.9) scale(1)"/><use href="#pet" fill="url(#c0)" transform="rotate(154.3) scale(1)"/><use href="#pet" fill="url(#c0)" transform="rotate(205.7) scale(1)"/><use href="#pet" fill="url(#c0)" transform="rotate(257.1) scale(1)"/><use href="#pet" fill="url(#c0)" transform="rotate(308.6) scale(1)"/></g><g class="petal petal-layer-2" style="animation-delay:2.6s"><use href="#pet" fill="url(#c1)" transform="rotate(25.7) scale(0.68)"/><use href="#pet" fill="url(#c1)" transform="rotate(97.7) scale(0.68)"/><use href="#pet" fill="url(#c1)" transform="rotate(169.7) scale(0.68)"/><use href="#pet" fill="url(#c1)" transform="rotate(241.7) scale(0.68)"/><use href="#pet" fill="url(#c1)" transform="rotate(313.7) scale(0.68)"/></g><g class="petal petal-layer-3" style="animation-delay:3.0s"><use href="#pet" fill="url(#c1)" transform="rotate(10.0) scale(0.4)"/><use href="#pet" fill="url(#c1)" transform="rotate(82.0) scale(0.4)"/><use href="#pet" fill="url(#c1)" transform="rotate(154.0) scale(0.4)"/><use href="#pet" fill="url(#c1)" transform="rotate(226.0) scale(0.4)"/><use href="#pet" fill="url(#c1)" transform="rotate(298.0) scale(0.4)"/></g><circle class="core-glow" r="26" fill="url(#heartCoreGrad)" opacity=".55"/><g class="petal petal-layer-4" style="animation-delay:3.1999999999999997s"><circle r="8" fill="#ffe08a"/><circle cx="11.0" cy="0.0" r="1.5" fill="#fff"/><circle cx="5.5" cy="9.5" r="1.5" fill="#fff"/><circle cx="-5.5" cy="9.5" r="1.5" fill="#fff"/><circle cx="-11.0" cy="-0.0" r="1.5" fill="#fff"/><circle cx="-5.5" cy="-9.5" r="1.5" fill="#fff"/><circle cx="5.5" cy="-9.5" r="1.5" fill="#fff"/></g></g><g transform="translate(160 150) scale(1.25)"><g class="petal petal-layer-1" style="animation-delay:1.3s"><use href="#pet" fill="url(#a0)" transform="rotate(0.0) scale(1)"/><use href="#pet" fill="url(#a0)" transform="rotate(45.0) scale(1)"/><use href="#pet" fill="url(#a0)" transform="rotate(90.0) scale(1)"/><use href="#pet" fill="url(#a0)" transform="rotate(135.0) scale(1)"/><use href="#pet" fill="url(#a0)" transform="rotate(180.0) scale(1)"/><use href="#pet" fill="url(#a0)" transform="rotate(225.0) scale(1)"/><use href="#pet" fill="url(#a0)" transform="rotate(270.0) scale(1)"/><use href="#pet" fill="url(#a0)" transform="rotate(315.0) scale(1)"/></g><g class="petal petal-layer-2" style="animation-delay:1.7s"><use href="#pet" fill="url(#a1)" transform="rotate(22.5) scale(0.68)"/><use href="#pet" fill="url(#a1)" transform="rotate(82.5) scale(0.68)"/><use href="#pet" fill="url(#a1)" transform="rotate(142.5) scale(0.68)"/><use href="#pet" fill="url(#a1)" transform="rotate(202.5) scale(0.68)"/><use href="#pet" fill="url(#a1)" transform="rotate(262.5) scale(0.68)"/><use href="#pet" fill="url(#a1)" transform="rotate(322.5) scale(0.68)"/></g><g class="petal petal-layer-3" style="animation-delay:2.1s"><use href="#pet" fill="url(#a1)" transform="rotate(10.0) scale(0.4)"/><use href="#pet" fill="url(#a1)" transform="rotate(82.0) scale(0.4)"/><use href="#pet" fill="url(#a1)" transform="rotate(154.0) scale(0.4)"/><use href="#pet" fill="url(#a1)" transform="rotate(226.0) scale(0.4)"/><use href="#pet" fill="url(#a1)" transform="rotate(298.0) scale(0.4)"/></g><circle class="core-glow" r="26" fill="url(#heartCoreGrad)" opacity=".55"/><g class="petal petal-layer-4" style="animation-delay:2.3s"><circle r="8" fill="#ffe08a"/><circle cx="11.0" cy="0.0" r="1.5" fill="#fff"/><circle cx="5.5" cy="9.5" r="1.5" fill="#fff"/><circle cx="-5.5" cy="9.5" r="1.5" fill="#fff"/><circle cx="-11.0" cy="-0.0" r="1.5" fill="#fff"/><circle cx="-5.5" cy="-9.5" r="1.5" fill="#fff"/><circle cx="5.5" cy="-9.5" r="1.5" fill="#fff"/></g></g></g></svg>
+    </div>
+
+    <div class="text-wrapper">
+      <div class="poetic-text" id="poeticText">
+        <span id="phraseSpan">Pensé en ti</span>
+        <span class="sparkle-icon" id="iconSpan">✨</span>
+      </div>
+    </div>
+
+    <div class="touch-hint" id="touchHint">toca la flor</div>
+  </main>
+
+  <script>
+    
+    const phrases = [
+      { text: "Cuidate mucho, ¿si?", icon: "✨" },
+      { text: "Descansa, cualquier cosa, puedes hablarme.", icon: "🌸" },
+      { text: "Te quiero mucho, no lo olvides.", icon: "🤍" }
+    ];
+
+    let currentPhraseIndex = 0;
+    const poeticText = document.getElementById('poeticText');
+    const phraseSpan = document.getElementById('phraseSpan');
+    const iconSpan = document.getElementById('iconSpan');
+    const touchHint = document.getElementById('touchHint');
+    let hasInteracted = false;
+
+    function cycleToNextPhrase() {
+      currentPhraseIndex = (currentPhraseIndex + 1) % phrases.length;
+      const nextPhrase = phrases[currentPhraseIndex];
+
+      poeticText.classList.add('fade-switch');
+
+      setTimeout(() => {
+        phraseSpan.textContent = nextPhrase.text;
+        iconSpan.textContent = nextPhrase.icon;
+        poeticText.classList.remove('fade-switch');
+        poeticText.classList.add('glow-up');
+
+        setTimeout(() => {
+          poeticText.classList.remove('glow-up');
+        }, 900);
+      }, 300);
+    }
+
+    
+    let audioCtx = null;
+
+    const chordProgressions = [
+      [587.33, 739.99, 880.00, 1174.66], // Re / Fa# / La / Re 
+      [659.25, 830.61, 987.77, 1318.51], // Mi / Sol# / Si / Mi 
+      [739.99, 932.33, 1108.73, 1479.98] // Fa# / La# / Do# / Fa# 
+    ];
+
+    function playCelestialChime(progressionIndex) {
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        if (!audioCtx) {
+          audioCtx = new AudioContext();
+        }
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+
+        const now = audioCtx.currentTime;
+        const notes = chordProgressions[progressionIndex % chordProgressions.length];
+
+        notes.forEach((freq, index) => {
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          const filter = audioCtx.createBiquadFilter();
+
+          // Filtro cálido para una resonancia de caja de música
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(2200, now);
+
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now + index * 0.045);
+
+          const noteStart = now + index * 0.045;
+          const peakGain = 0.024 / (index * 0.35 + 1);
+
+          gain.gain.setValueAtTime(0, noteStart);
+          gain.gain.linearRampToValueAtTime(peakGain, noteStart + 0.025);
+          gain.gain.exponentialRampToValueAtTime(0.0001, noteStart + 2.5);
+
+          osc.connect(filter);
+          filter.connect(gain);
+          gain.connect(audioCtx.destination);
+
+          osc.start(noteStart);
+          osc.stop(noteStart + 2.6);
+        });
+      } catch (e) {
+      }
+    }
+
+   
+    const canvas = document.getElementById('nightCanvas');
+    const ctx = canvas.getContext('2d');
+    let width = 0;
+    let height = 0;
+    let dpr = 1;
+
+    function resizeCanvas() {
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      ctx.scale(dpr, dpr);
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    const ambientCount = 55;
+    const ambientParticles = [];
+
+    class AmbientParticle {
+      constructor() {
+        this.reset(true);
+      }
+
+      reset(init = false) {
+        this.x = Math.random() * width;
+        this.y = init ? Math.random() * height : height + 10;
+        this.size = Math.random() * 1.8 + 0.6;
+        this.vx = (Math.random() - 0.5) * 0.25;
+        this.vy = -(Math.random() * 0.35 + 0.12);
+        this.baseAlpha = Math.random() * 0.55 + 0.2;
+        this.alpha = this.baseAlpha;
+        this.phase = Math.random() * Math.PI * 2;
+        this.pulseSpeed = Math.random() * 0.02 + 0.008;
+
+        const palette = [
+          'rgba(255, 240, 210, ',
+          'rgba(235, 245, 255, ',
+          'rgba(255, 220, 235, ',
+          'rgba(220, 250, 235, '
+        ];
+        this.colorPrefix = palette[Math.floor(Math.random() * palette.length)];
+      }
+
+      update() {
+        this.phase += this.pulseSpeed;
+        this.alpha = this.baseAlpha * (0.6 + 0.4 * Math.sin(this.phase));
+        this.x += this.vx + Math.sin(this.phase * 0.5) * 0.2;
+        this.y += this.vy;
+
+        if (this.y < -15 || this.x < -15 || this.x > width + 15) {
+          this.reset(false);
+        }
+      }
+
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fillStyle = this.colorPrefix + this.alpha + ')';
+        ctx.fill();
+
+        if (this.size > 1.4) {
+          ctx.beginPath();
+          ctx.arc(this.x, this.y, this.size * 2.5, 0, Math.PI * 2);
+          ctx.fillStyle = this.colorPrefix + (this.alpha * 0.18) + ')';
+          ctx.fill();
+        }
+      }
+    }
+
+    for (let i = 0; i < ambientCount; i++) {
+      ambientParticles.push(new AmbientParticle());
+    }
+
+    const burstParticles = [];
+    const rippleWaves = [];
+
+    class SparkleParticle {
+      constructor(originX, originY, colorType = 'all') {
+        this.x = originX;
+        this.y = originY;
+        
+        const angle = Math.random() * Math.PI * 2;
+        const speed = Math.random() * 3.8 + 1.2;
+        this.vx = Math.cos(angle) * speed;
+        this.vy = Math.sin(angle) * speed - 1.25; 
+        
+        this.gravity = 0.02;
+        this.drag = 0.965;
+        this.size = Math.random() * 2.4 + 1.0;
+        this.life = 1.0;
+        this.decay = Math.random() * 0.016 + 0.011;
+        this.isStar = Math.random() > 0.45;
+        this.rotation = Math.random() * Math.PI;
+        this.rotSpeed = (Math.random() - 0.5) * 0.08;
+
+        const pinkColors = ['rgba(255, 215, 235, ', 'rgba(255, 240, 248, ', 'rgba(255, 255, 255, '];
+        const peachColors = ['rgba(255, 220, 190, ', 'rgba(255, 240, 210, ', 'rgba(255, 255, 255, '];
+        const lavenderColors = ['rgba(220, 205, 255, ', 'rgba(235, 225, 255, ', 'rgba(255, 255, 255, '];
+        const allColors = [
+          'rgba(255, 245, 215, ', 
+          'rgba(255, 215, 235, ', 
+          'rgba(255, 255, 255, ', 
+          'rgba(215, 240, 255, '  
+        ];
+
+        let palette = allColors;
+        if (colorType === 'pink') palette = pinkColors;
+        else if (colorType === 'peach') palette = peachColors;
+        else if (colorType === 'lavender') palette = lavenderColors;
+
+        this.colorPrefix = palette[Math.floor(Math.random() * palette.length)];
+      }
+
+      update() {
+        this.vx *= this.drag;
+        this.vy = this.vy * this.drag - this.gravity;
+        this.x += this.vx;
+        this.y += this.vy;
+        this.rotation += this.rotSpeed;
+        this.life -= this.decay;
+      }
+
+      draw() {
+        if (this.life <= 0) return;
+        const currentAlpha = Math.max(0, this.life);
+
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.rotation);
+
+        if (this.isStar) {
+          const s = this.size * (0.8 + 0.5 * currentAlpha);
+          ctx.beginPath();
+          ctx.moveTo(0, -s * 2.2);
+          ctx.quadraticCurveTo(0, 0, s * 2.2, 0);
+          ctx.quadraticCurveTo(0, 0, 0, s * 2.2);
+          ctx.quadraticCurveTo(0, 0, -s * 2.2, 0);
+          ctx.quadraticCurveTo(0, 0, 0, -s * 2.2);
+          ctx.fillStyle = this.colorPrefix + currentAlpha + ')';
+          ctx.fill();
+        } else {
+          ctx.beginPath();
+          ctx.arc(0, 0, this.size, 0, Math.PI * 2);
+          ctx.fillStyle = this.colorPrefix + currentAlpha + ')';
+          ctx.fill();
+
+          ctx.beginPath();
+          ctx.arc(0, 0, this.size * 2.6, 0, Math.PI * 2);
+          ctx.fillStyle = this.colorPrefix + (currentAlpha * 0.25) + ')';
+          ctx.fill();
+        }
+
+        ctx.restore();
+      }
+    }
+
+    class RippleWave {
+      constructor(originX, originY) {
+        this.x = originX;
+        this.y = originY;
+        this.radius = 12;
+        this.life = 1.0;
+        this.decay = 0.022;
+      }
+
+      update() {
+        this.radius += 2.8;
+        this.life -= this.decay;
+      }
+
+      draw() {
+        if (this.life <= 0) return;
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(255, 230, 240, ${this.life * 0.35})`;
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        ctx.restore();
+      }
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, width, height);
+
+      for (let i = 0; i < ambientParticles.length; i++) {
+        ambientParticles[i].update();
+        ambientParticles[i].draw();
+      }
+
+      for (let i = rippleWaves.length - 1; i >= 0; i--) {
+        const wave = rippleWaves[i];
+        wave.update();
+        wave.draw();
+        if (wave.life <= 0) {
+          rippleWaves.splice(i, 1);
+        }
+      }
+
+      for (let i = burstParticles.length - 1; i >= 0; i--) {
+        const p = burstParticles[i];
+        p.update();
+        p.draw();
+        if (p.life <= 0) {
+          burstParticles.splice(i, 1);
+        }
+      }
+
+      requestAnimationFrame(animate);
+    }
+    requestAnimationFrame(animate);
+
+    const flowerStage = document.getElementById('flowerStage');
+
+    function triggerFlowerReaction(event) {
+      if (event) {
+        event.stopPropagation();
+      }
+
+      if (!hasInteracted) {
+        hasInteracted = true;
+        touchHint.style.opacity = '0';
+      }
+
+      if (window.navigator && window.navigator.vibrate) {
+        window.navigator.vibrate([14, 30, 10]);
+      }
+
+      playCelestialChime(currentPhraseIndex);
+
+      cycleToNextPhrase();
+
+      flowerStage.classList.remove('pulse-active');
+      void flowerStage.offsetWidth;
+      flowerStage.classList.add('pulse-active');
+
+      const rect = flowerStage.getBoundingClientRect();
+      const scaleX = rect.width / 320;
+      const scaleY = rect.height / 420;
+
+      const flowerOrigins = [
+        { x: rect.left + 160 * scaleX, y: rect.top + 150 * scaleY, colorType: 'pink', count: 24 },    
+        { x: rect.left + 92  * scaleX, y: rect.top + 225 * scaleY, colorType: 'peach', count: 14 },   
+        { x: rect.left + 228 * scaleX, y: rect.top + 215 * scaleY, colorType: 'lavender', count: 14 } 
+      ];
+
+      rippleWaves.push(new RippleWave(flowerOrigins[0].x, flowerOrigins[0].y));
+      setTimeout(() => {
+        rippleWaves.push(new RippleWave(flowerOrigins[1].x, flowerOrigins[1].y));
+        rippleWaves.push(new RippleWave(flowerOrigins[2].x, flowerOrigins[2].y));
+      }, 90);
+
+      flowerOrigins.forEach((origin) => {
+        for (let i = 0; i < origin.count; i++) {
+          burstParticles.push(new SparkleParticle(origin.x, origin.y, origin.colorType));
+        }
+      });
+    }
+
+    flowerStage.addEventListener('pointerdown', triggerFlowerReaction);
+    poeticText.addEventListener('pointerdown', triggerFlowerReaction);
+
+    window.addEventListener('pointerdown', (e) => {
+      if (!flowerStage.contains(e.target) && !poeticText.contains(e.target)) {
+        if (!hasInteracted) {
+          hasInteracted = true;
+          touchHint.style.opacity = '0';
+        }
+        cycleToNextPhrase();
+        playCelestialChime(currentPhraseIndex);
+        rippleWaves.push(new RippleWave(e.clientX, e.clientY));
+        for (let i = 0; i < 20; i++) {
+          burstParticles.push(new SparkleParticle(e.clientX, e.clientY));
+        }
+      }
+    });
+  </script>
+</body>
+</html>
